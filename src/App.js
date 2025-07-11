@@ -45,7 +45,8 @@ function App() {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
             />
-          </Autocomplete>
+          </Autocomplete>  
+          <div className="helper-message">Google Maps Autocomplete Enabled</div>
           <button type="submit">Find Phone Numbers</button>
         </form>
       </LoadScript>
