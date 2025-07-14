@@ -18,20 +18,34 @@ function App() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch('http://localhost:5000/lookup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address }),
-      });
-      const data = await res.json();
-      setResult(data.message);
-    } catch (error) {
-      setResult('Error contacting server');
-    }
-  };
+
+const handleSubmit = async () => {
+  if (!address) return;
+
+  // Parse the address: crude method based on expected format
+  const [street, city, stateZip] = address.split(',').map(p => p.trim());
+  const [state, zip] = stateZip.split(' ');
+
+  try {
+    const res = await fetch('http://localhost:5000/lookup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ street, city, state, zip })
+    });
+
+    const data = await res.json();
+    console.log('Response from server:', data);
+  } catch (err) {
+    console.error('Error:', err);
+  }
+};
+
+
+
+
+
+
+
 
   return (
     <div className="App">
