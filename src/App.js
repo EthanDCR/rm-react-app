@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import './App.css';
 import { LoadScript, Autocomplete } from '@react-google-maps/api';
 
+
+function formatPhoneNumber(phone) {
+  if (!phone) return '';
+  const cleaned = phone.replace(/\D/g, '');
+  if (cleaned.length === 10) {
+    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+  }
+  return phone; // fallback if not 10 digits
+}
+
 const libraries = ['places'];
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
@@ -75,14 +85,20 @@ function App() {
 
     <h3>📞 Phone Numbers:</h3>
     <ul>
-      {result.results.persons[0].phoneNumbers?.map((phone, index) => (
-        <li key={index}>
-          {phone.number} ({phone.type}, Score: {phone.score})
-        </li>
-      )) || <li>No phone numbers found</li>}
-    </ul>
+  {result.results.persons[0].phoneNumbers?.length > 0 ? (
+    result.results.persons[0].phoneNumbers.map((phone, index) => (
+      <li key={index}>
+        {formatPhoneNumber(phone.number)} ({phone.type}, Score: {phone.score})
+      </li>
+    ))
+  ) : (
+    <li>No phone numbers found</li>
+  )}
+</ul>
 
-    <h3>🏢 Owner Mailing Address:</h3>
+
+
+          <h3>🏢 Owner Mailing Address:</h3>
     <p>
       {result.results.persons[0].property?.owner?.name?.full}<br />
       {[
