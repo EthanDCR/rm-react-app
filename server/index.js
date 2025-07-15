@@ -7,7 +7,13 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const apiKey = process.env.BATCHDATA_API_KEY;
 
-app.use(cors());
+app.use(cors({
+  origin: '*', // or specify your frontend URL for more security
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+
 app.use(express.json());
 
 app.post('/lookup', async (req, res) => {
