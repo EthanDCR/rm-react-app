@@ -6,14 +6,16 @@ body {
 }
 
 
+
 .result-box {
-  background-color: #f2f2f2; /* soft, light gray */
-  color: #111;               /* dark text for contrast */
+  background-color: #e5e7eb; /* light neutral gray */
+  color: #1e293b;            /* soft dark slate for better contrast */
   padding: 20px;
   border-radius: 10px;
   margin-top: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* subtle elevation */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
 
 
 .result-box h2 {
@@ -89,6 +91,40 @@ button {
 button:hover {
   background-color: #2563eb; /* blue-600 */
 }
+
+
+/* Headings inside result box */
+.result-box h2,
+.result-box h3 {
+  color: #0f172a; /* subtle dark slate/navy tone */
+  margin-bottom: 0.5rem;
+}
+
+/* Remove bullets from the phone number list */
+.result-box ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+/* Make paragraph text more subtle */
+.result-box p {
+  color: #334155; /* slate-700 — more muted, less bright */
+}
+
+/* OPTIONAL: style tel: links injected by extensions like Dialpad */
+.result-box a[href^="tel:"] {
+  color: #1d4ed8 !important;        /* blue-700 */
+  text-decoration: none !important;
+}
+
+.result-box a[href^="tel:"]:hover {
+  color: #1e40af !important;        /* blue-800 */
+}
+
+
+
+
 
 p {
   margin-top: 1rem;
