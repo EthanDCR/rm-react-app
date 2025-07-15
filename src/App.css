@@ -7,15 +7,15 @@ body {
 
 
 .result-box {
-  margin-top: 2rem;
-  padding: 1rem 1.5rem;
+  background-color: #f2f2f2; /* soft, light gray */
+  color: #111;               /* dark text for contrast */
+  padding: 20px;
   border-radius: 10px;
-  background-color: #2c3b4f;
-  border: 1px solid #d3e0ea;
-  max-width: 600px;
-  line-height: 1.6;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* subtle elevation */
 }
+
+
 .result-box h2 {
   margin-top: 0;
 }
@@ -69,27 +69,10 @@ input::placeholder {
 }
 
 
-
-a[href^="tel:"] {
-  color: inherit !important;
-  background: none !important;
-  text-decoration: none !important;
-  font-weight: normal !important;
-}
-
-
-a[href^="tel:"]:hover {
-  color: #ccc !important;
-}
-
-
-
 .helper-message {
   color: limegreen;
   opacity: 70%;
 }
-
-
 
 
 button {
