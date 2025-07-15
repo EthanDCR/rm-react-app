@@ -21,13 +21,12 @@ function App() {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:5000/lookup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: inputValue })
-      });
-
-      const data = await response.json();
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/lookup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ address: inputValue })
+  });
+         const data = await response.json();
       setResult(data);
       console.log(data);
     } catch (err) {
