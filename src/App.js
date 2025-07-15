@@ -2,69 +2,66 @@ import React, { useState } from 'react';
 import './App.css';
 import { LoadScript, Autocomplete } from '@react-google-maps/api';
 
-function App() {
-  const [address, setAddress] = useState('');
-  const [autocomplete, setAutocomplete] = useState(null);
-  const [result, setResult] = useState('');
+const libraries = ['places'];
+const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
-  const handleLoad = (auto) => {
-    setAutocomplete(auto);
-  };
+function App() {
+  const [autocomplete, setAutocomplete] = useState(null);
+  const [inputValue, setInputValue] = useState('');
+  const [result, setResult] = useState(null);
 
   const handlePlaceChanged = () => {
-    if (autocomplete) {
+    if (autocomplete !== null) {
       const place = autocomplete.getPlace();
-      setAddress(place.formatted_address || '');
+      setInputValue(place.formatted_address);
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-const handleSubmit = async () => {
-  if (!address) return;
+    try {
+      const response = await fetch('http://localhost:5000/lookup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: inputValue })
+      });
 
-  // Parse the address: crude method based on expected format
-  const [street, city, stateZip] = address.split(',').map(p => p.trim());
-  const [state, zip] = stateZip.split(' ');
-
-  try {
-    const res = await fetch('http://localhost:5000/lookup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ street, city, state, zip })
-    });
-
-    const data = await res.json();
-    console.log('Response from server:', data);
-  } catch (err) {
-    console.error('Error:', err);
-  }
-};
-
-
-
-
-
-
-
+      const data = await response.json();
+      setResult(data);
+      console.log(data);
+    } catch (err) {
+      console.error('Frontend fetch error:', err);
+    }
+  };
 
   return (
     <div className="App">
-      <h2>🔍 Find Phone Numbers</h2>
-      <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY} libraries={['places']}>
+      <h1>Property Lookup</h1>
+      <LoadScript
+        googleMapsApiKey={GOOGLE_MAPS_API_KEY}
+        libraries={libraries}
+      >
         <form onSubmit={handleSubmit}>
-          <Autocomplete onLoad={handleLoad} onPlaceChanged={handlePlaceChanged}>
+          <Autocomplete
+            onLoad={(autoC) => setAutocomplete(autoC)}
+            onPlaceChanged={handlePlaceChanged}
+          >
             <input
               type="text"
-              placeholder="Start typing an address..."
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Enter a property address"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              style={{ width: '300px', padding: '8px' }}
             />
-          </Autocomplete>  
-          <div className="helper-message">Google Maps Autocomplete Enabled</div>
-          <button type="submit">Find Phone Numbers</button>
+          </Autocomplete>
+          <button type="submit">Lookup</button>
         </form>
       </LoadScript>
-      <p>{result}</p>
+
+      {result && (
+        <pre>{JSON.stringify(result, null, 2)}</pre>
+      )}
     </div>
   );
 }
