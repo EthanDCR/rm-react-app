@@ -82,6 +82,12 @@ const response = await fetch('https://api.batchdata.com/api/v1/property/skip-tra
   }
 });
 
+
+app.get('/', (req, res) => {
+  res.send('API is up and running!');
+});
+
+
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on ${PORT}`);
 });
