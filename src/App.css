@@ -69,15 +69,18 @@ input::placeholder {
 }
 
 
+
 a[href^="tel:"] {
-  color: inherit;         /* match your text color */
-  text-decoration: none;  /* remove underline if needed */
+  color: inherit !important;
+  background: none !important;
+  text-decoration: none !important;
+  font-weight: normal !important;
 }
+
 
 a[href^="tel:"]:hover {
-  color: #ccc;            /* softer on hover (optional) */
+  color: #ccc !important;
 }
-
 
 
 
