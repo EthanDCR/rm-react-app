@@ -59,9 +59,46 @@ function App() {
         </form>
       </LoadScript>
 
-      {result && (
-        <pre>{JSON.stringify(result, null, 2)}</pre>
-      )}
+   {result && result.results?.persons?.length > 0 && (
+  <div className="result-box">
+    <h2>🔍 Property Lookup Results</h2>
+
+    <p><strong>Owner Name:</strong> {result.results.persons[0].name?.full || 'N/A'}</p>
+
+    <p><strong>Property Address:</strong> {[
+      result.results.persons[0].propertyAddress?.street,
+      result.results.persons[0].propertyAddress?.city,
+      result.results.persons[0].propertyAddress?.state,
+      result.results.persons[0].propertyAddress?.zip
+    ].filter(Boolean).join(', ')}</p>
+
+    <p><strong>County:</strong> {result.results.persons[0].propertyAddress?.county || 'N/A'}</p>
+
+    <h3>📞 Phone Numbers:</h3>
+    <ul>
+      {result.results.persons[0].phoneNumbers?.map((phone, index) => (
+        <li key={index}>
+          {phone.number} ({phone.type}, Score: {phone.score})
+        </li>
+      )) || <li>No phone numbers found</li>}
+    </ul>
+
+    <h3>🏢 Owner Mailing Address:</h3>
+    <p>
+      {result.results.persons[0].property?.owner?.name?.full}<br />
+      {[
+        result.results.persons[0].property?.owner?.mailingAddress?.street,
+        result.results.persons[0].property?.owner?.mailingAddress?.city,
+        result.results.persons[0].property?.owner?.mailingAddress?.state,
+        result.results.persons[0].property?.owner?.mailingAddress?.zip
+      ].filter(Boolean).join(', ')}
+    </p>
+  </div>
+)}
+
+
+
+
     </div>
   );
 }

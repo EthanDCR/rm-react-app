@@ -6,6 +6,27 @@ body {
 }
 
 
+.result-box {
+  margin-top: 2rem;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  background-color: #2c3b4f;
+  border: 1px solid #d3e0ea;
+  max-width: 600px;
+  line-height: 1.6;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+.result-box h2 {
+  margin-top: 0;
+}
+.result-box ul {
+  padding-left: 1.2rem;
+}
+
+h1 {
+  font-size: 56px;
+}
+
 .App {
   min-height: 100vh;
   display: flex;
@@ -31,7 +52,7 @@ form {
   border-radius: 12px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
   width: 100%;
-  max-width: 400px;
+  max-width: 460px;
 }
 
 input {
