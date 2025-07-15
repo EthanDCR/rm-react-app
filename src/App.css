@@ -68,6 +68,19 @@ input::placeholder {
   color: #cbd5e1;
 }
 
+
+a[href^="tel:"] {
+  color: inherit;         /* match your text color */
+  text-decoration: none;  /* remove underline if needed */
+}
+
+a[href^="tel:"]:hover {
+  color: #ccc;            /* softer on hover (optional) */
+}
+
+
+
+
 .helper-message {
   color: limegreen;
   opacity: 70%;
