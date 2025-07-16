@@ -57,24 +57,51 @@ function App() {
   return (
     <div className="App">
       <h1>Property Lookup</h1>
-      <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={libraries}>
-        <form onSubmit={handleSubmit}>
-          <Autocomplete
-            onLoad={(autoC) => setAutocomplete(autoC)}
-            onPlaceChanged={handlePlaceChanged}
-          >
-            <input
-              type="text"
-              placeholder="Enter a property address"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              style={{ width: '300px', padding: '8px' }}
-            />
-          </Autocomplete>
-          <button type="submit" disabled={loading || !inputValue.trim()}>
-            {loading ? 'Looking up...' : 'Lookup'}
-          </button>
-        </form>
+       <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY} libraries={libraries}>
+
+
+<form
+  onSubmit={handleSubmit}
+  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
+>
+  <Autocomplete
+    onLoad={(autoC) => setAutocomplete(autoC)}
+    onPlaceChanged={handlePlaceChanged}
+  >
+    <input
+      type="text"
+      placeholder="Enter a property address"
+      value={inputValue}
+      onChange={(e) => setInputValue(e.target.value)}
+      style={{ width: '450px', padding: '10px', margin: 0 }}
+    />
+  </Autocomplete>
+
+  <p style={{
+    fontSize: '13px',
+    color: 'rgba(50, 205, 50, 0.7)', // softer green with opacity
+    margin: 0,
+    fontWeight: 'bold',
+    lineHeight: '1.2'
+  }}>
+    Google Maps Autocomplete is enabled
+  </p>
+
+  <button
+    type="submit"
+    disabled={loading}
+    style={{ padding: '8px 16px', margin: 0 }}
+  >
+    {loading ? "Looking up..." : "Lookup"}
+  </button>
+</form>
+
+
+
+
+
+
+
       </LoadScript>
 
       {loading && <div className="progress-bar"></div>}
