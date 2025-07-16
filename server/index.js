@@ -16,59 +16,43 @@ app.use(cors({
 
 app.use(express.json());
 
-// === /lookup: Skip trace property and return data ===
-app.post('/lookup', async (req, res) => {
-  const { address } = req.body;
-  console.log('Received address string:', address);
+app.post('/verify/lookup', async (req, res) => {
+  const { phoneNumber } = req.body;
 
-  if (!address) {
-    return res.status(400).json({ error: 'Address is required' });
+  if (!phoneNumber) {
+    return res.status(400).json({ error: 'Phone number is required' });
   }
-
-  const parts = address.split(',');
-  if (parts.length < 3) {
-    return res.status(400).json({ error: 'Invalid address format' });
-  }
-
-  const street = parts[0].trim();
-  const city = parts[1].trim();
-  const [state, zip] = parts[2].trim().split(' ');
-
-  console.log('Parsed address for BatchData:', { street, city, state, zip });
 
   try {
-    const response = await fetch('https://api.batchdata.com/api/v1/property/skip-trace', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        requests: [
-          {
-            propertyAddress: {
-              street,
-              city,
-              state,
-              zip
-            }
-          }
-        ]
-      })
-    });
+    const url = `https://www.phonevalidator.com/api/verify?Phone=${encodeURIComponent(phoneNumber)}&Key=${phoneValidatorKey}`;
 
+    const response = await fetch(url);
     const data = await response.json();
+
     if (!response.ok) {
-      console.error('BatchData API error:', data);
-      return res.status(500).json({ error: data.status?.message || 'Unknown error' });
+      console.error('PhoneValidator API error:', data);
+      return res.status(500).json({ error: 'Validation API failed', details: data });
     }
 
-    res.json(data);
-  } catch (err) {
-    console.error('Error fetching from BatchData:', err);
-    res.status(500).json({ error: 'Failed to reach BatchData API' });
+    res.json({
+      valid: data.IsValid === 'Yes',
+      disconnected: data.IsDisconnected === 'Yes',
+      suspended: data.IsSuspended === 'Yes',
+      carrier: data.Carrier,
+      line_type: data.LineType,
+      country: data.Country,
+      raw: data
+    });
+  } catch (error) {
+    console.error('PhoneValidator fetch error:', error);
+    res.status(500).json({ error: 'Phone validation failed' });
   }
 });
+
+
+
+
+
 
 // === /verify/lookup: Validate phone number using PhoneValidator ===
 app.post('/verify/lookup', async (req, res) => {
