@@ -2,15 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
-const twilio = require('twilio');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// API keys
 const apiKey = process.env.BATCHDATA_API_KEY;
-const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-const verifySid = process.env.TWILIO_VERIFY_SERVICE_SID;
+const phoneValidatorKey = process.env.PHONEVALIDATOR_API_KEY;
 
 app.use(cors({
   origin: '*',
@@ -20,10 +16,7 @@ app.use(cors({
 
 app.use(express.json());
 
-/**
- * === Lookup Route ===
- * Receives a full address, sends it to BatchData API, returns skip trace results.
- */
+// === /lookup: Skip trace property and return data ===
 app.post('/lookup', async (req, res) => {
   const { address } = req.body;
   console.log('Received address string:', address);
@@ -48,7 +41,7 @@ app.post('/lookup', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        Authorization: `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         requests: [
@@ -65,7 +58,6 @@ app.post('/lookup', async (req, res) => {
     });
 
     const data = await response.json();
-
     if (!response.ok) {
       console.error('BatchData API error:', data);
       return res.status(500).json({ error: data.status?.message || 'Unknown error' });
@@ -78,55 +70,7 @@ app.post('/lookup', async (req, res) => {
   }
 });
 
-/**
- * === Twilio Verify: Start SMS Code ===
- */
-app.post('/verify/start', async (req, res) => {
-  const { phoneNumber } = req.body;
-
-  if (!phoneNumber) {
-    return res.status(400).json({ error: 'Phone number is required' });
-  }
-
-  try {
-    const verification = await twilioClient.verify.v2
-      .services(verifySid)
-      .verifications
-      .create({ to: phoneNumber, channel: 'sms' });
-
-    res.json({ status: verification.status });
-  } catch (error) {
-    console.error('Twilio verify/start error:', error);
-    res.status(500).json({ error: 'Failed to start verification' });
-  }
-});
-
-/**
- * === Twilio Verify: Check Code ===
- */
-app.post('/verify/check', async (req, res) => {
-  const { phoneNumber, code } = req.body;
-
-  if (!phoneNumber || !code) {
-    return res.status(400).json({ error: 'Phone number and code are required' });
-  }
-
-  try {
-    const result = await twilioClient.verify.v2
-      .services(verifySid)
-      .verificationChecks
-      .create({ to: phoneNumber, code });
-
-    res.json({ status: result.status, valid: result.status === 'approved' });
-  } catch (error) {
-    console.error('Twilio verify/check error:', error);
-    res.status(500).json({ error: 'Failed to check verification code' });
-  }
-});
-
-/**
- * === Twilio Lookup: Check if number is valid & mobile ===
- */
+// === /verify/lookup: Validate phone number using PhoneValidator ===
 app.post('/verify/lookup', async (req, res) => {
   const { phoneNumber } = req.body;
 
@@ -135,32 +79,38 @@ app.post('/verify/lookup', async (req, res) => {
   }
 
   try {
-    const lookup = await twilioClient.lookups.v2
-      .phoneNumbers(phoneNumber)
-      .fetch({ type: ['carrier'] });
+    const response = await fetch(`https://phonevalidator.com/api/v2/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${phoneValidatorKey}`
+      },
+      body: JSON.stringify({ phone: phoneNumber })
+    });
 
-    const isMobile = lookup.carrier?.type === 'mobile';
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error('PhoneValidator API error:', result);
+      return res.status(500).json({ error: 'Validation API failed', details: result });
+    }
 
     res.json({
-      valid: true,
-      number: lookup.phoneNumber,
-      carrierType: lookup.carrier?.type || 'unknown',
-      isMobile
+      valid: result.is_valid,
+      disconnected: result.is_disconnected,
+      suspended: result.is_suspended,
+      carrier: result.carrier,
+      line_type: result.line_type,
+      country: result.country_name,
+      raw: result
     });
   } catch (error) {
-    console.error('Twilio lookup error:', error?.message || error);
-    res.json({
-      valid: false,
-      number: phoneNumber,
-      carrierType: 'invalid',
-      isMobile: false
-    });
+    console.error('PhoneValidator fetch error:', error);
+    res.status(500).json({ error: 'Phone validation failed' });
   }
 });
 
-/**
- * === Health Check ===
- */
+// === Health check ===
 app.get('/', (req, res) => {
   res.send('API is up and running!');
 });

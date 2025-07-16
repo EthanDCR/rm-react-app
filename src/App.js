@@ -40,7 +40,7 @@ function App() {
       return data;
     } catch (err) {
       console.error('Lookup failed:', err);
-      return { valid: false, type: 'error' };
+      return { valid: false, disconnected: false, suspended: false, line_type: null };
     }
   };
 
@@ -59,12 +59,11 @@ function App() {
 
       const data = await response.json();
 
-      // Check each phone number with Twilio Lookup
       if (data?.results?.persons?.[0]?.phoneNumbers?.length) {
         const lookups = await Promise.all(
           data.results.persons[0].phoneNumbers.map(async (phone) => {
             const info = await checkPhoneNumber(phone.number);
-            return { ...phone, ...info };
+            return { ...phone, validation: info };
           })
         );
         data.results.persons[0].phoneNumbers = lookups;
@@ -77,6 +76,14 @@ function App() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getValidationLabel = (validation) => {
+    if (!validation) return null;
+    if (validation.disconnected) return '❌ Disconnected';
+    if (validation.suspended) return '⚠️ Suspended';
+    if (validation.valid) return '✅ Active';
+    return '❌ Invalid';
   };
 
   return (
@@ -143,9 +150,7 @@ function App() {
               result.results.persons[0].phoneNumbers.map((phone, index) => (
                 <li key={index}>
                   {formatPhoneNumber(phone.number)} ({phone.type}, Score: {phone.score})<br />
-                  {phone.valid
-                    ? `✅ Valid (${phone.carrier?.type || phone.type})`
-                    : `❌ Invalid or unknown`}
+                  {getValidationLabel(phone.validation)}
                 </li>
               ))
             ) : (
