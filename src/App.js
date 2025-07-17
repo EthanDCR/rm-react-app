@@ -102,14 +102,9 @@ const getValidationLabel = (validation) => {
       📶 <strong>Carrier:</strong> {carrier || 'N/A'}<br />
       🏙️ <strong>Location:</strong> {raw?.PhoneBasic?.PhoneLocation || 'N/A'}<br />
       📞 <strong>Type:</strong> {line_type || 'N/A'}<br />
-      🌍 <strong>Country:</strong> {country || 'N/A'}
     </>
   );
 };
-
-
-
-
 
   return (
     <div className="App">
@@ -221,12 +216,7 @@ const getValidationLabel = (validation) => {
     <span style={{ marginLeft: '6px', fontSize: '0.85rem', color: 'limegreen' }}>Copied!</span>
   )}
 </p>
-
-
-
-
           <h3>📞 Phone Numbers:</h3>
-
 
           <ul>         
   {result.results.persons[0].phoneNumbers?.length > 0 ? (
