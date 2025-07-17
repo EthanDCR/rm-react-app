@@ -78,13 +78,26 @@ function App() {
     }
   };
 
-  const getValidationLabel = (validation) => {
-    if (!validation) return null;
-    if (validation.disconnected) return '❌ Disconnected';
-    if (validation.suspended) return '⚠️ Suspended';
-    if (validation.valid) return '✅ Active';
-    return '❌ Invalid';
-  };
+
+const getValidationLabel = (validation) => {
+  if (!validation) return null;
+
+  const { valid, carrier, line_type, country, raw } = validation;
+
+  return (
+    <>
+      <strong>{valid ? '✅ Likely Good Number' : '❌ Invalid Number'}</strong><br />
+      📶 <strong>Carrier:</strong> {carrier || 'N/A'}<br />
+      🏙️ <strong>Location:</strong> {raw?.PhoneBasic?.PhoneLocation || 'N/A'}<br />
+      📞 <strong>Type:</strong> {line_type || 'N/A'}<br />
+      🌍 <strong>Country:</strong> {country || 'N/A'}
+    </>
+  );
+};
+
+
+
+
 
   return (
     <div className="App">
@@ -146,16 +159,20 @@ function App() {
 
           <h3>📞 Phone Numbers:</h3>
           <ul>
-            {result.results.persons[0].phoneNumbers?.length > 0 ? (
-              result.results.persons[0].phoneNumbers.map((phone, index) => (
-                <li key={index}>
-                  {formatPhoneNumber(phone.number)} ({phone.type}, Score: {phone.score})<br />
-                  {getValidationLabel(phone.validation)}
-                </li>
-              ))
-            ) : (
-              <li>No phone numbers found</li>
-            )}
+
+          
+{result.results.persons[0].phoneNumbers?.length > 0 ? (
+  result.results.persons[0].phoneNumbers.map((phone, index) => (
+    <li key={index}>
+      {formatPhoneNumber(phone.number)} ({phone.type}, Score: {phone.score})<br />
+      {getValidationLabel(phone.validation)}
+    </li>
+  ))
+) : (
+  <li>No phone numbers found</li>
+)}
+
+
           </ul>
 
           <h3>🏢 Owner Mailing Address:</h3>
