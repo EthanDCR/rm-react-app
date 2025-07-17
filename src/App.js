@@ -234,7 +234,7 @@ const getValidationLabel = (validation) => {
   result.results.persons[0].phoneNumbers.map((phone, index) => (
    <li key={index} style={{ marginBottom: '1.5em' }}>
   {formatPhoneNumber(phone.number)} ({phone.type}, Score: {phone.score})<br />
-<div style={{ marginTop: '4px', marginBottom: '10px' }}>
+<div style={{ marginTop: '6px', marginBottom: '16px' }}>
   {getValidationLabel(phone.validation)}
 </div>
                 </li>
