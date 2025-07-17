@@ -224,7 +224,6 @@ const getValidationLabel = (validation) => {
 
 
 
-          <p><strong>County:</strong> {result.results.persons[0].propertyAddress?.county || 'N/A'}</p>
 
           <h3>📞 Phone Numbers:</h3>
 
