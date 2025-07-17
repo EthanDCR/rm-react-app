@@ -58,28 +58,33 @@ app.post('/lookup', async (req, res) => {
   }
 });
 
-// ✅ /verify/lookup route (PhoneValidator)
+
 app.post('/verify/lookup', async (req, res) => {
   const { phoneNumber } = req.body;
-  if (!phoneNumber) return res.status(400).json({ error: 'Phone number is required' });
+
+  if (!phoneNumber) {
+    return res.status(400).json({ error: 'Phone number is required' });
+  }
 
   try {
-    const url = `https://www.phonevalidator.com/api/verify?Phone=${encodeURIComponent(phoneNumber)}&Key=${phoneValidatorKey}`;
+    const url = `https://api.phonevalidator.com/api/v3/phonesearch?apikey=${phoneValidatorKey}&phone=${encodeURIComponent(phoneNumber)}`;
+    console.log('Requesting:', url);
+
     const response = await fetch(url);
     const data = await response.json();
 
-    if (!response.ok) {
+    if (!response.ok || data.StatusCode !== "200") {
       console.error('PhoneValidator API error:', data);
       return res.status(500).json({ error: 'Validation API failed', details: data });
     }
 
     res.json({
-      valid: data.IsValid === 'Yes',
-      disconnected: data.IsDisconnected === 'Yes',
-      suspended: data.IsSuspended === 'Yes',
-      carrier: data.Carrier,
-      line_type: data.LineType,
-      country: data.Country,
+      valid: data.PhoneBasic?.FakeNumber === "NO",
+      disconnected: false, // This API doesn't give that info
+      suspended: false,    // Same here
+      carrier: data.PhoneBasic?.PhoneCompany,
+      line_type: data.PhoneBasic?.LineType,
+      location: data.PhoneBasic?.PhoneLocation,
       raw: data
     });
   } catch (error) {
@@ -87,6 +92,8 @@ app.post('/verify/lookup', async (req, res) => {
     res.status(500).json({ error: 'Phone validation failed' });
   }
 });
+
+
 
 // ✅ Health check
 app.get('/', (req, res) => {
