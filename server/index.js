@@ -20,12 +20,22 @@ app.post('/lookup', async (req, res) => {
   const { address } = req.body;
   if (!address) return res.status(400).json({ error: 'Address is required' });
 
-  const parts = address.split(',');
-  if (parts.length < 3) return res.status(400).json({ error: 'Invalid address format' });
 
-  const street = parts[0].trim();
-  const city = parts[1].trim();
-  const [state, zip] = parts[2].trim().split(' ');
+const parts = address.split(',');
+if (parts.length < 3) {
+  return res.status(400).json({ error: 'Invalid address format' });
+}
+
+const street = parts[0].trim();
+const city = parts[1].trim();
+const stateZip = parts[2].trim().split(' ');
+const state = stateZip[0];
+const zip = stateZip[1] || '';
+
+console.log('Parsed address:', { street, city, state, zip });
+
+
+
 
   try {
     const response = await fetch('https://api.batchdata.com/api/v1/property/skip-trace', {
@@ -61,13 +71,14 @@ app.post('/lookup', async (req, res) => {
 
 app.post('/verify/lookup', async (req, res) => {
   const { phoneNumber } = req.body;
-
+  const cleanedNumber = phoneNumber.replace(/\D/g, ''); // removes all non-digit characters
+ 
   if (!phoneNumber) {
     return res.status(400).json({ error: 'Phone number is required' });
   }
 
   try {
-    const url = `https://api.phonevalidator.com/api/v3/phonesearch?apikey=${phoneValidatorKey}&phone=${encodeURIComponent(phoneNumber)}`;
+    const url = `https://api.phonevalidator.com/api/v3/phonesearch?apikey=${phoneValidatorKey}&phone=${cleanedNumber}&type=basic`;
     console.log('Requesting:', url);
 
     const response = await fetch(url);
