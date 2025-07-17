@@ -3,13 +3,6 @@ import './App.css';
 import { LoadScript, Autocomplete } from '@react-google-maps/api';
 
 
-const copyToClipboard = (text, fieldKey) => {
-  navigator.clipboard.writeText(text).then(() => {
-    setCopiedField(fieldKey);
-    setTimeout(() => setCopiedField(null), 1500);
-  });
-};
-
 
 function formatPhoneNumber(phone) {
   if (!phone) return '';
@@ -29,6 +22,13 @@ function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
+
+const copyToClipboard = (text, fieldKey) => {
+  navigator.clipboard.writeText(text).then(() => {
+    setCopiedField(fieldKey);
+    setTimeout(() => setCopiedField(null), 1500);
+  });
+};
 
 
 
