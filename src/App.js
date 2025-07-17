@@ -98,7 +98,6 @@ const getValidationLabel = (validation) => {
 
   return (
     <>
-      <strong>{valid ? '✅ Likely Good Number' : '❌ Invalid Number'}</strong><br />
       📶 <strong>Carrier:</strong> {carrier || 'N/A'}<br />
       🏙️ <strong>Location:</strong> {raw?.PhoneBasic?.PhoneLocation || 'N/A'}<br />
       📞 <strong>Type:</strong> {line_type || 'N/A'}<br />
@@ -134,7 +133,7 @@ const getValidationLabel = (validation) => {
             fontWeight: 'bold',
             lineHeight: '1.2'
           }}>
-            Google Maps Autocomplete is enabled
+            Google Maps Autocomplete enabled
           </p>
 
           <button
