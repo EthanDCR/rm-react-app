@@ -13,19 +13,58 @@ app.use(cors({
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
 app.use(express.json());
 
+// ✅ /lookup route (BatchData)
+app.post('/lookup', async (req, res) => {
+  const { address } = req.body;
+  if (!address) return res.status(400).json({ error: 'Address is required' });
+
+  const parts = address.split(',');
+  if (parts.length < 3) return res.status(400).json({ error: 'Invalid address format' });
+
+  const street = parts[0].trim();
+  const city = parts[1].trim();
+  const [state, zip] = parts[2].trim().split(' ');
+
+  try {
+    const response = await fetch('https://api.batchdata.com/api/v1/property/skip-trace', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        requests: [
+          {
+            propertyAddress: {
+              street, city, state, zip
+            }
+          }
+        ]
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      console.error('BatchData API error:', data);
+      return res.status(500).json({ error: data.status?.message || 'Unknown error' });
+    }
+
+    res.json(data);
+  } catch (err) {
+    console.error('BatchData error:', err);
+    res.status(500).json({ error: 'Failed to fetch from BatchData' });
+  }
+});
+
+// ✅ /verify/lookup route (PhoneValidator)
 app.post('/verify/lookup', async (req, res) => {
   const { phoneNumber } = req.body;
-
-  if (!phoneNumber) {
-    return res.status(400).json({ error: 'Phone number is required' });
-  }
+  if (!phoneNumber) return res.status(400).json({ error: 'Phone number is required' });
 
   try {
     const url = `https://www.phonevalidator.com/api/verify?Phone=${encodeURIComponent(phoneNumber)}&Key=${phoneValidatorKey}`;
-
     const response = await fetch(url);
     const data = await response.json();
 
@@ -49,52 +88,7 @@ app.post('/verify/lookup', async (req, res) => {
   }
 });
 
-
-
-
-
-
-// === /verify/lookup: Validate phone number using PhoneValidator ===
-app.post('/verify/lookup', async (req, res) => {
-  const { phoneNumber } = req.body;
-
-  if (!phoneNumber) {
-    return res.status(400).json({ error: 'Phone number is required' });
-  }
-
-  try {
-    const response = await fetch(`https://phonevalidator.com/api/v2/verify`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${phoneValidatorKey}`
-      },
-      body: JSON.stringify({ phone: phoneNumber })
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      console.error('PhoneValidator API error:', result);
-      return res.status(500).json({ error: 'Validation API failed', details: result });
-    }
-
-    res.json({
-      valid: result.is_valid,
-      disconnected: result.is_disconnected,
-      suspended: result.is_suspended,
-      carrier: result.carrier,
-      line_type: result.line_type,
-      country: result.country_name,
-      raw: result
-    });
-  } catch (error) {
-    console.error('PhoneValidator fetch error:', error);
-    res.status(500).json({ error: 'Phone validation failed' });
-  }
-});
-
-// === Health check ===
+// ✅ Health check
 app.get('/', (req, res) => {
   res.send('API is up and running!');
 });
