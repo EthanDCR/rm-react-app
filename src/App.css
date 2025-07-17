@@ -1,8 +1,9 @@
 body {
-  margin: 0;
-  background-color: #0f172a; /* dark navy */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #f1f5f9; /* light slate */
+    margin: 0;
+    background-color: #0f172a; /* dark navy */
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: #f1f5f9; /* light slate */
 }
 
 
@@ -26,7 +27,12 @@ body {
 }
 
 h1 {
-  font-size: 56px;
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+  color: #1e293b;
 }
 
 .App {
