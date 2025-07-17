@@ -32,7 +32,7 @@ const stateZip = parts[2].trim().split(' ');
 const state = stateZip[0];
 const zip = stateZip[1] || '';
 
-console.log('Parsed address:', { street, city, state, zip });
+  console.log('Parsed address:', { street, city, state, zip });
 
 
 
