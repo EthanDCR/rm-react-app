@@ -2,6 +2,15 @@ import React, { useState } from 'react';
 import './App.css';
 import { LoadScript, Autocomplete } from '@react-google-maps/api';
 
+
+const copyToClipboard = (text, fieldKey) => {
+  navigator.clipboard.writeText(text).then(() => {
+    setCopiedField(fieldKey);
+    setTimeout(() => setCopiedField(null), 1500);
+  });
+};
+
+
 function formatPhoneNumber(phone) {
   if (!phone) return '';
   const cleaned = phone.replace(/\D/g, '');
@@ -19,6 +28,9 @@ function App() {
   const [inputValue, setInputValue] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [copiedField, setCopiedField] = useState(null);
+
+
 
   const handlePlaceChanged = () => {
     if (autocomplete !== null) {
@@ -146,45 +158,150 @@ const getValidationLabel = (validation) => {
         <div className="result-box">
           <h2>🔍 Property Lookup Results</h2>
 
-          <p><strong>Owner Name:</strong> {result.results.persons[0].name?.full || 'N/A'}</p>
 
-          <p><strong>Property Address:</strong> {[
-            result.results.persons[0].propertyAddress?.street,
-            result.results.persons[0].propertyAddress?.city,
-            result.results.persons[0].propertyAddress?.state,
-            result.results.persons[0].propertyAddress?.zip
-          ].filter(Boolean).join(', ')}</p>
+<p>
+  <strong>Owner Name:</strong> {result.results.persons[0].name?.full || 'N/A'}
+  {result.results.persons[0].name?.full && (
+    <button
+      onClick={() =>
+        copyToClipboard(result.results.persons[0].name.full, 'owner')
+      }
+      style={{
+        marginLeft: '8px',
+        cursor: 'pointer',
+        background: 'none',
+        border: 'none',
+        fontSize: '1rem'
+      }}
+      title="Copy Owner Name"
+    >
+      📋
+    </button>
+  )}
+  {copiedField === 'owner' && (
+    <span style={{ marginLeft: '6px', fontSize: '0.85rem', color: 'limegreen' }}>
+      Copied!
+    </span>
+  )}
+</p>
+
+
+<p>
+  <strong>Property Address:</strong>{' '}
+  {[
+    result.results.persons[0].propertyAddress?.street,
+    result.results.persons[0].propertyAddress?.city,
+    result.results.persons[0].propertyAddress?.state,
+    result.results.persons[0].propertyAddress?.zip
+  ].filter(Boolean).join(', ')}
+
+  {result.results.persons[0].propertyAddress?.city &&
+    result.results.persons[0].propertyAddress?.state && (
+      <button
+        onClick={() =>
+          copyToClipboard(
+            `${result.results.persons[0].propertyAddress.city}, ${result.results.persons[0].propertyAddress.state}`,
+            'citystate'
+          )
+        }
+        style={{
+          marginLeft: '8px',
+          cursor: 'pointer',
+          background: 'none',
+          border: 'none',
+          fontSize: '1rem'
+        }}
+        title="Copy City & State"
+      >
+        📋
+      </button>
+  )}
+
+  {copiedField === 'citystate' && (
+    <span style={{ marginLeft: '6px', fontSize: '0.85rem', color: 'limegreen' }}>Copied!</span>
+  )}
+</p>
+
+
 
           <p><strong>County:</strong> {result.results.persons[0].propertyAddress?.county || 'N/A'}</p>
 
           <h3>📞 Phone Numbers:</h3>
-          <ul>
 
-          
-{result.results.persons[0].phoneNumbers?.length > 0 ? (
+
+          <ul>         
+  {result.results.persons[0].phoneNumbers?.length > 0 ? (
   result.results.persons[0].phoneNumbers.map((phone, index) => (
-    <li key={index}>
-      {formatPhoneNumber(phone.number)} ({phone.type}, Score: {phone.score})<br />
-      {getValidationLabel(phone.validation)}
-    </li>
+   <li key={index} style={{ marginBottom: '1.5em' }}>
+  {formatPhoneNumber(phone.number)} ({phone.type}, Score: {phone.score})<br />
+  {getValidationLabel(phone.validation)}
+</li>
+
   ))
 ) : (
   <li>No phone numbers found</li>
 )}
+        </ul>
 
 
-          </ul>
+<h3>🏢 Owner Mailing Address:</h3>
+<p>
+  <>
+    {result.results.persons[0].property?.owner?.name?.full}
+    {result.results.persons[0].property?.owner?.name?.full && (
+      <button
+        onClick={() =>
+          copyToClipboard(result.results.persons[0].property.owner.name.full, 'company')
+        }
+        style={{ marginLeft: '8px', cursor: 'pointer', background: 'none', border: 'none' }}
+        title="Copy Company Name"
+      >
+        📋
+      </button>
+    )}
+    {copiedField === 'company' && (
+      <span style={{ marginLeft: '6px', fontSize: '0.85rem', color: 'limegreen' }}>
+        Copied!
+      </span>
+    )}
+  </>
+  <br />
+  {[
+    result.results.persons[0].property?.owner?.mailingAddress?.street,
+    result.results.persons[0].property?.owner?.mailingAddress?.city,
+    result.results.persons[0].property?.owner?.mailingAddress?.state,
+    result.results.persons[0].property?.owner?.mailingAddress?.zip
+  ].filter(Boolean).join(', ')}
 
-          <h3>🏢 Owner Mailing Address:</h3>
-          <p>
-            {result.results.persons[0].property?.owner?.name?.full}<br />
-            {[
-              result.results.persons[0].property?.owner?.mailingAddress?.street,
-              result.results.persons[0].property?.owner?.mailingAddress?.city,
-              result.results.persons[0].property?.owner?.mailingAddress?.state,
-              result.results.persons[0].property?.owner?.mailingAddress?.zip
-            ].filter(Boolean).join(', ')}
-          </p>
+  {/* Copy city + state */}
+  {result.results.persons[0].property?.owner?.mailingAddress?.city &&
+   result.results.persons[0].property?.owner?.mailingAddress?.state && (
+    <>
+      <button
+        onClick={() =>
+          copyToClipboard(
+            `${result.results.persons[0].property.owner.mailingAddress.city}, ${result.results.persons[0].property.owner.mailingAddress.state}`,
+            'citystate'
+          )
+        }
+        style={{ marginLeft: '8px', cursor: 'pointer', background: 'none', border: 'none' }}
+        title="Copy City & State"
+      >
+        📋
+      </button>
+      {copiedField === 'citystate' && (
+        <span style={{ marginLeft: '6px', fontSize: '0.85rem', color: 'limegreen' }}>
+          Copied!
+        </span>
+      )}
+    </>
+  )}
+</p>
+
+
+
+
+
         </div>
       )}
     </div>
