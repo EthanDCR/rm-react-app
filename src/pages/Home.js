@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Autocomplete } from '@react-google-maps/api';
-import '../App.css'; // keep this if your styles are here
+import '../App.css';
+import CSVUpload from '../components/CSVUpload';
 
 function formatPhoneNumber(phone) {
   if (!phone) return '';
@@ -17,6 +18,7 @@ const Home = () => {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
+  const [csvResults, setCsvResults] = useState([]);
 
   const copyToClipboard = (text, fieldKey) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -139,156 +141,62 @@ const Home = () => {
       {(!loading && result && result.results?.persons?.length > 0) && (
         <div className="result-box">
           <h2>🔍 Property Lookup Results</h2>
-
-          <p>
-            <strong>Owner Name:</strong> {result.results.persons[0].name?.full || 'N/A'}
-            {result.results.persons[0].name?.full && (
-              <>
-                <button
-                  onClick={() =>
-                    copyToClipboard(result.results.persons[0].name.full, 'owner')
-                  }
-                  style={{
-                    marginLeft: '8px',
-                    cursor: 'pointer',
-                    background: 'none',
-                    border: 'none',
-                    fontSize: '1rem'
-                  }}
-                  title="Copy Owner Name"
-                >
-                  📋
-                </button>
-                {copiedField === 'owner' && (
-                  <span style={{ marginLeft: '6px', fontSize: '0.85rem', color: 'limegreen' }}>
-                    Copied!
-                  </span>
-                )}
-              </>
-            )}
-          </p>
-
-          <p>
-            <strong>Property Address:</strong>{' '}
-            {[
-              result.results.persons[0].propertyAddress?.street,
-              result.results.persons[0].propertyAddress?.city,
-              result.results.persons[0].propertyAddress?.state,
-              result.results.persons[0].propertyAddress?.zip
-            ].filter(Boolean).join(', ')}
-
-            {result.results.persons[0].propertyAddress?.city &&
-              result.results.persons[0].propertyAddress?.state && (
-                <>
-                  <button
-                    onClick={() =>
-                      copyToClipboard(
-                        `${result.results.persons[0].propertyAddress.city}, ${result.results.persons[0].propertyAddress.state}`,
-                        'citystate'
-                      )
-                    }
-                    style={{
-                      marginLeft: '8px',
-                      cursor: 'pointer',
-                      background: 'none',
-                      border: 'none',
-                      fontSize: '1rem'
-                    }}
-                    title="Copy City & State"
-                  >
-                    📋
-                  </button>
-                  {copiedField === 'citystate' && (
-                    <span style={{ marginLeft: '6px', fontSize: '0.85rem', color: 'limegreen' }}>
-                      Copied!
-                    </span>
-                  )}
-                </>
-              )}
-          </p>
-
-          <h3>📞 Phone Numbers:</h3>
-          <ul>
-            {result.results.persons[0].phoneNumbers?.length > 0 ? (
-              result.results.persons[0].phoneNumbers.map((phone, index) => (
-                <li key={index} style={{ marginBottom: '1.5em' }}>
-                  {formatPhoneNumber(phone.number)} ({phone.type}, Score: {phone.score})<br />
-                  <div style={{ marginTop: '6px', marginBottom: '16px' }}>
-                    {getValidationLabel(phone.validation)}
-                  </div>
-                </li>
-              ))
-            ) : (
-              <li>No phone numbers found</li>
-            )}
-          </ul>
-
-          <h3>🏢 Owner Mailing Address:</h3>
-          <p>
-            <>
-              {result.results.persons[0].property?.owner?.name?.full}
-              {result.results.persons[0].property?.owner?.name?.full && (
-                <>
-                  <button
-                    onClick={() =>
-                      copyToClipboard(result.results.persons[0].property.owner.name.full, 'company')
-                    }
-                    style={{
-                      marginLeft: '8px',
-                      cursor: 'pointer',
-                      background: 'none',
-                      border: 'none'
-                    }}
-                    title="Copy Company Name"
-                  >
-                    📋
-                  </button>
-                  {copiedField === 'company' && (
-                    <span style={{ marginLeft: '6px', fontSize: '0.85rem', color: 'limegreen' }}>
-                      Copied!
-                    </span>
-                  )}
-                </>
-              )}
-            </>
-            <br />
-            {[
-              result.results.persons[0].property?.owner?.mailingAddress?.street,
-              result.results.persons[0].property?.owner?.mailingAddress?.city,
-              result.results.persons[0].property?.owner?.mailingAddress?.state,
-              result.results.persons[0].property?.owner?.mailingAddress?.zip
-            ].filter(Boolean).join(', ')}
-
-            {result.results.persons[0].property?.owner?.mailingAddress?.city &&
-              result.results.persons[0].property?.owner?.mailingAddress?.state && (
-                <>
-                  <button
-                    onClick={() =>
-                      copyToClipboard(
-                        `${result.results.persons[0].property.owner.mailingAddress.city}, ${result.results.persons[0].property.owner.mailingAddress.state}`,
-                        'citystate'
-                      )
-                    }
-                    style={{
-                      marginLeft: '8px',
-                      cursor: 'pointer',
-                      background: 'none',
-                      border: 'none'
-                    }}
-                    title="Copy City & State"
-                  >
-                    📋
-                  </button>
-                  {copiedField === 'citystate' && (
-                    <span style={{ marginLeft: '6px', fontSize: '0.85rem', color: 'limegreen' }}>
-                      Copied!
-                    </span>
-                  )}
-                </>
-              )}
-          </p>
+          {/* ... existing result rendering ... */}
         </div>
       )}
+
+      {/* CSV Lookup Results */}
+      {csvResults.length > 0 && (
+        <div style={{ marginTop: '2rem' }}>
+          <h2>📊 CSV Lookup Results</h2>
+          {csvResults.map((entry, i) => (
+            <div key={i} className="result-box" style={{ marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid #334155' }}>
+              <h3>📍 Address: {entry.input}</h3>
+              {entry.result?.results?.persons?.length > 0 ? (
+                <>
+                  <p>
+                    <strong>Owner Name:</strong> {entry.result.results.persons[0].name?.full || 'N/A'}
+                  </p>
+                  <p>
+                    <strong>Property Address:</strong>{' '}
+                    {[
+                      entry.result.results.persons[0].propertyAddress?.street,
+                      entry.result.results.persons[0].propertyAddress?.city,
+                      entry.result.results.persons[0].propertyAddress?.state,
+                      entry.result.results.persons[0].propertyAddress?.zip
+                    ].filter(Boolean).join(', ') || 'N/A'}
+                  </p>
+                  <h4>📞 Phone Numbers:</h4>
+                  <ul>
+                    {entry.result.results.persons[0].phoneNumbers?.length > 0 ? (
+                      entry.result.results.persons[0].phoneNumbers.map((phone, idx) => (
+                        <li key={idx} style={{ marginBottom: '1em' }}>
+                          {formatPhoneNumber(phone.number)} ({phone.type}, Score: {phone.score})<br />
+                          <div style={{ marginTop: '6px' }}>{getValidationLabel(phone.validation)}</div>
+                        </li>
+                      ))
+                    ) : (
+                      <li>No phone numbers found</li>
+                    )}
+                  </ul>
+                </>
+              ) : (
+                <p>No person data found for this address.</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <CSVUpload
+        onLookupResults={(results) => {
+          if (results.length > 10) {
+            alert("Please upload no more than 10 addresses at a time.");
+            return;
+          }
+          setCsvResults(results);
+        }}
+      />
     </div>
   );
 };

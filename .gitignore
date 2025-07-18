@@ -2,6 +2,10 @@
 node_modules/
 server/node_modules/
 
+#test files
+test.csv
+
+
 # Production build output
 /build/
 client/build/         # If you ever move to a client/ folder
