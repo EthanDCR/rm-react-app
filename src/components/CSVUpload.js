@@ -22,9 +22,17 @@ const CSVUpload = ({ onLookupResults }) => {
         setLoading(true);
 
         for (let row of limitedRows) {
-          const address = row.address || row.Address;
+          let address = row.address || row.Address;
+
           if (!address) {
-            errorList.push(`Missing address in row: ${JSON.stringify(row)}`);
+            // Try reconstructing from multiple columns
+            const values = Object.values(row).filter(Boolean);
+            address = values.join(', ').trim();
+          }
+
+          // Validate address format
+          if (address.split(',').length < 3) {
+            errorList.push(`Incomplete address: "${address}"`);
             continue;
           }
 
