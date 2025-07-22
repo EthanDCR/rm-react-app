@@ -138,10 +138,35 @@ const Home = () => {
 
       {loading && <div className="progress-bar"></div>}
 
+      {/* Single Lookup Result */}
       {(!loading && result && result.results?.persons?.length > 0) && (
-        <div className="result-box">
+        <div className="result-box" style={{ marginTop: '2rem', paddingBottom: '1rem', borderBottom: '2px solid #334155' }}>
           <h2>🔍 Property Lookup Results</h2>
-          {/* ... existing result rendering ... */}
+          <p>
+            <strong>Owner Name:</strong> {result.results.persons[0].name?.full || 'N/A'}
+          </p>
+          <p>
+            <strong>Property Address:</strong>{' '}
+            {[
+              result.results.persons[0].propertyAddress?.street,
+              result.results.persons[0].propertyAddress?.city,
+              result.results.persons[0].propertyAddress?.state,
+              result.results.persons[0].propertyAddress?.zip
+            ].filter(Boolean).join(', ') || 'N/A'}
+          </p>
+          <h4>📞 Phone Numbers:</h4>
+          <ul>
+            {result.results.persons[0].phoneNumbers?.length > 0 ? (
+              result.results.persons[0].phoneNumbers.map((phone, idx) => (
+                <li key={idx} style={{ marginBottom: '1em' }}>
+                  {formatPhoneNumber(phone.number)} ({phone.type}, Score: {phone.score})<br />
+                  <div style={{ marginTop: '6px' }}>{getValidationLabel(phone.validation)}</div>
+                </li>
+              ))
+            ) : (
+              <li>No phone numbers found</li>
+            )}
+          </ul>
         </div>
       )}
 
