@@ -18,6 +18,9 @@ app.use(express.json());
 // ✅ /lookup route (BatchData)
 app.post('/lookup', async (req, res) => {
   const { address } = req.body;
+  console.log("raw adress from request:", address);
+
+
   if (!address) return res.status(400).json({ error: 'Address is required' });
 
 
