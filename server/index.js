@@ -56,7 +56,8 @@ const zip = stateZip[1] || '';
     });
 
     const data = await response.json();
-    if (!response.ok) {
+    console.log('BatchData response:', JSON.stringify(data, null, 2));
+   if (!response.ok) {
       console.error('BatchData API error:', data);
       return res.status(500).json({ error: data.status?.message || 'Unknown error' });
     }

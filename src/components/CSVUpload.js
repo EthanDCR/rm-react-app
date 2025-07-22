@@ -15,7 +15,7 @@ const CSVUpload = ({ onLookupResults }) => {
       skipEmptyLines: true,
       complete: async (result) => {
         const rows = result.data;
-        const limitedRows = rows.slice(0, 10); // ✅ Limit to 10 addresses
+        const limitedRows = rows.slice(0, 10);
         const newResults = [];
         const errorList = [];
 
