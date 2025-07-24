@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Papa from 'papaparse';
+import './CSVUpload.css';
 
 const CSVUpload = ({ onLookupResults }) => {
   const [loading, setLoading] = useState(false);
@@ -25,12 +26,10 @@ const CSVUpload = ({ onLookupResults }) => {
           let address = row.address || row.Address;
 
           if (!address) {
-            // Try reconstructing from multiple columns
             const values = Object.values(row).filter(Boolean);
             address = values.join(', ').trim();
           }
 
-          // Validate address format
           if (address.split(',').length < 3) {
             errorList.push(`Incomplete address: "${address}"`);
             continue;
@@ -59,12 +58,12 @@ const CSVUpload = ({ onLookupResults }) => {
   };
 
   return (
-    <div style={{ marginTop: '2rem' }}>
+    <div className="csv-upload-container">
       <h3>📁 Upload CSV</h3>
       <input type="file" accept=".csv" onChange={handleFileUpload} />
       {loading && <p>Looking up addresses...</p>}
       {errors.length > 0 && (
-        <div>
+        <div className="csv-upload-errors">
           <h4>Errors:</h4>
           <ul>{errors.map((err, i) => <li key={i}>{err}</li>)}</ul>
         </div>

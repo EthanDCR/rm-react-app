@@ -87,6 +87,7 @@ const Home = () => {
   const getValidationLabel = (validation) => {
     if (!validation) return null;
     const { carrier, line_type, raw } = validation;
+
     return (
       <>
         📶 <strong>Carrier:</strong> {carrier || 'N/A'}<br />
@@ -97,44 +98,47 @@ const Home = () => {
   };
 
   return (
-    <div className="App">
+    <div className="page-container">
       <h1>Property Lookup</h1>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-      >
-        <Autocomplete
-          onLoad={(autoC) => setAutocomplete(autoC)}
-          onPlaceChanged={handlePlaceChanged}
-        >
-          <input
-            type="text"
-            placeholder="Enter a property address"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            style={{ width: '450px', padding: '10px', margin: 0 }}
-          />
-        </Autocomplete>
 
-        <p style={{
-          fontSize: '13px',
-          color: 'rgba(50, 205, 50, 0.7)',
-          margin: 0,
-          fontWeight: 'bold',
-          lineHeight: '1.2'
-        }}>
-          Google Maps Autocomplete enabled
-        </p>
+<div className="card">
+  <Autocomplete
+    onLoad={(autoC) => setAutocomplete(autoC)}
+    onPlaceChanged={handlePlaceChanged}
+  >
+    <input
+      type="text"
+      placeholder="Enter a property address"
+      value={inputValue}
+      onChange={(e) => setInputValue(e.target.value)}
+    />
+  </Autocomplete>
 
-        <button
-          type="submit"
-          disabled={loading}
-          style={{ padding: '8px 16px', margin: 0 }}
-        >
-          {loading ? "Looking up..." : "Lookup"}
-        </button>
-      </form>
+  <p className="helper-message">
+    Google Maps Autocomplete enabled
+  </p>
+
+  <button onClick={handleSubmit} disabled={loading}>
+    {loading ? "Looking up..." : "Lookup"}
+  </button>
+</div>
+
+
+
+
+      {/* CSV Upload */}
+      <div className="card csv-upload-container">
+        <CSVUpload
+          onLookupResults={(results) => {
+            if (results.length > 10) {
+              alert("Please upload no more than 10 addresses at a time.");
+              return;
+            }
+            setCsvResults(results);
+          }}
+        />
+      </div>
 
       {loading && <div className="progress-bar"></div>}
 
@@ -212,16 +216,6 @@ const Home = () => {
           ))}
         </div>
       )}
-
-      <CSVUpload
-        onLookupResults={(results) => {
-          if (results.length > 10) {
-            alert("Please upload no more than 10 addresses at a time.");
-            return;
-          }
-          setCsvResults(results);
-        }}
-      />
     </div>
   );
 };
