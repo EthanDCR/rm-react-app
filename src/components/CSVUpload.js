@@ -2,6 +2,67 @@ import React, { useState } from 'react';
 import Papa from 'papaparse';
 import './CSVUpload.css';
 
+const stateMap = {
+  'Alabama': 'AL',
+  'Alaska': 'AK',
+  'Arizona': 'AZ',
+  'Arkansas': 'AR',
+  'California': 'CA',
+  'Colorado': 'CO',
+  'Connecticut': 'CT',
+  'Delaware': 'DE',
+  'Florida': 'FL',
+  'Georgia': 'GA',
+  'Hawaii': 'HI',
+  'Idaho': 'ID',
+  'Illinois': 'IL',
+  'Indiana': 'IN',
+  'Iowa': 'IA',
+  'Kansas': 'KS',
+  'Kentucky': 'KY',
+  'Louisiana': 'LA',
+  'Maine': 'ME',
+  'Maryland': 'MD',
+  'Massachusetts': 'MA',
+  'Michigan': 'MI',
+  'Minnesota': 'MN',
+  'Mississippi': 'MS',
+  'Missouri': 'MO',
+  'Montana': 'MT',
+  'Nebraska': 'NE',
+  'Nevada': 'NV',
+  'New Hampshire': 'NH',
+  'New Jersey': 'NJ',
+  'New Mexico': 'NM',
+  'New York': 'NY',
+  'North Carolina': 'NC',
+  'North Dakota': 'ND',
+  'Ohio': 'OH',
+  'Oklahoma': 'OK',
+  'Oregon': 'OR',
+  'Pennsylvania': 'PA',
+  'Rhode Island': 'RI',
+  'South Carolina': 'SC',
+  'South Dakota': 'SD',
+  'Tennessee': 'TN',
+  'Texas': 'TX',
+  'Utah': 'UT',
+  'Vermont': 'VT',
+  'Virginia': 'VA',
+  'Washington': 'WA',
+  'West Virginia': 'WV',
+  'Wisconsin': 'WI',
+  'Wyoming': 'WY',
+  'District of Columbia': 'DC'
+};
+
+const normalizeState = (input) => {
+  const trimmed = input?.trim();
+  if (!trimmed) return '';
+  return stateMap[trimmed] || trimmed; // fallback to original input if already abbreviated or unknown
+};
+
+
 const CSVUpload = ({ onLookupResults }) => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -24,8 +85,8 @@ const CSVUpload = ({ onLookupResults }) => {
 
         for (let row of limitedRows) {
           const street = row['Address']?.trim();
-          const city = row['City']?.trim();
-          const state = row['State']?.trim();
+          const city = row['City']?.trim();       
+          const state = normalizeState(row['State']); 
           const zip = row['Zip']?.trim();
 
           const fullAddress = [street, city, state, zip].filter(Boolean).join(', ');
