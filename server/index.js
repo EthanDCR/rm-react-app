@@ -22,22 +22,41 @@ app.post('/lookup', async (req, res) => {
 
   if (!address) return res.status(400).json({ error: 'Address is required' });
 
+  
+const parseAddress = (raw) => {
+  const cleaned = raw.replace(/\s+/g, ' ').trim();
+  const parts = cleaned.split(',').map(p => p.trim());
 
-const parts = address.split(',');
-if (parts.length < 3) {
-  return res.status(400).json({ error: 'Invalid address format' });
+  let street = '', city = '', state = '', zip = '';
+
+  if (parts.length === 4) {
+    [street, city, state, zip] = parts;
+  } else if (parts.length === 3) {
+    [street, city, state] = parts;
+    const stateParts = state.split(' ');
+    if (stateParts.length > 1) {
+      state = stateParts[0];
+      zip = stateParts[1];
+    }
+  } else if (parts.length === 2) {
+    [street, state] = parts;
+    const stateParts = state.split(' ');
+    if (stateParts.length > 1) {
+      state = stateParts[0];
+      zip = stateParts[1];
+    }
+  }
+
+  return { street, city, state, zip };
+};
+
+const { street, city, state, zip } = parseAddress(address);
+console.log('Parsed address:', { street, city, state, zip });
+
+  if (!street || !state) {
+  console.error('Address parsing failed:', address);
+  return res.status(400).json({ error: 'Address could not be parsed correctly' });
 }
-
-const street = parts[0].trim();
-const city = parts[1].trim();
-const stateZip = parts[2].trim().split(' ');
-const state = stateZip[0];
-const zip = stateZip[1] || '';
-
-  console.log('Parsed address:', { street, city, state, zip });
-
-
-
 
   try {
     const response = await fetch('https://api.batchdata.com/api/v1/property/skip-trace', {
