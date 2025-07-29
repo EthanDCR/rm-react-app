@@ -174,17 +174,27 @@ const Home = () => {
         </div>
       )}
 
+
       {/* CSV Lookup Results */}
       {csvResults.length > 0 && (
         <div style={{ marginTop: '2rem' }}>
           <h2>📊 CSV Lookup Results</h2>
           {csvResults.map((entry, i) => (
-            <div key={i} className="result-box" style={{ marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid #334155' }}>
+            <div
+              key={i}
+              className="result-box"
+              style={{ marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '2px solid #334155' }}
+            >
               <h3>📍 Address: {entry.input}</h3>
+              <p>
+                <strong>LandGlide owner:</strong> {entry.landglideOwner || 'N/A'}
+              </p>
               {entry.result?.results?.persons?.length > 0 ? (
                 <>
                   <p>
-                    <strong>Owner Name:</strong> {entry.result.results.persons[0].name?.full || 'N/A'}
+                    <strong>Owner Name:</strong>{' '}
+                    
+                    {entry.result.results.persons[0].name?.full || 'N/A'}
                   </p>
                   <p>
                     <strong>Property Address:</strong>{' '}
@@ -192,17 +202,27 @@ const Home = () => {
                       entry.result.results.persons[0].propertyAddress?.street,
                       entry.result.results.persons[0].propertyAddress?.city,
                       entry.result.results.persons[0].propertyAddress?.state,
-                      entry.result.results.persons[0].propertyAddress?.zip
-                    ].filter(Boolean).join(', ') || 'N/A'}
+                      entry.result.results.persons[0].propertyAddress?.zip,
+                    ]
+                      .filter(Boolean)
+                      .join(', ') || 'N/A'}
                   </p>
-                  <h4>📞 Phone Numbers:</h4>
+                  <h4>📞 Phone Numbers:</h4> 
                   <ul>
                     {entry.result.results.persons[0].phoneNumbers?.length > 0 ? (
                       entry.result.results.persons[0].phoneNumbers.map((phone, idx) => (
-                        <li key={idx} style={{ marginBottom: '1em' }}>
-                          {formatPhoneNumber(phone.number)} ({phone.type}, Score: {phone.score})<br />
-                          <div style={{ marginTop: '6px' }}>{getValidationLabel(phone.validation)}</div>
-                        </li>
+                        
+                                
+<li key={idx} style={{ marginBottom: '1em' }}>
+  <div>
+    {formatPhoneNumber(phone.number)} ({phone.type}, Score: {phone.score})
+    <br />
+    <div style={{ marginTop: '6px' }}>
+      {getValidationLabel(phone.validation)}
+    </div>
+  </div>
+</li>
+
                       ))
                     ) : (
                       <li>No phone numbers found</li>
@@ -214,10 +234,12 @@ const Home = () => {
               )}
             </div>
           ))}
+
         </div>
       )}
-    </div>
+    </div> 
   );
 };
 
 export default Home;
+

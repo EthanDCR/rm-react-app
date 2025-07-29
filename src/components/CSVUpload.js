@@ -23,17 +23,20 @@ const CSVUpload = ({ onLookupResults }) => {
         setLoading(true);
 
         for (let row of limitedRows) {
-          let address = row.address || row.Address;
+          let address = row["Address"]?.trim();
 
           if (!address) {
             const values = Object.values(row).filter(Boolean);
             address = values.join(', ').trim();
           }
 
-          if (address.split(',').length < 3) {
-            errorList.push(`Incomplete address: "${address}"`);
-            continue;
+          
+          if (!address) {
+          errorList.push(`Missing address field`);
+          continue;
           }
+         
+
 
           try {
             const res = await fetch(`${process.env.REACT_APP_API_URL}/lookup`, {
@@ -43,7 +46,12 @@ const CSVUpload = ({ onLookupResults }) => {
             });
 
             const data = await res.json();
-            newResults.push({ input: address, result: data });
+
+            newResults.push({
+              input: address,
+              result: data,
+              landglideOwner: row["Owner"] || "N/A"
+            });
           } catch (err) {
             errorList.push(`Error for address "${address}": ${err.message}`);
           }
