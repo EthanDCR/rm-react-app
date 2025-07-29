@@ -47,8 +47,14 @@ const parseAddress = (raw) => {
     }
   }
 
-  return { street, city, state, zip };
+    return {
+  street,
+  city: city || 'Chesterfield', // fallback default
+  state,
+  zip
 };
+
+  };
 
 const { street, city, state, zip } = parseAddress(address);
 console.log('Parsed address:', { street, city, state, zip });
