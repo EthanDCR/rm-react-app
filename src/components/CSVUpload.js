@@ -23,37 +23,34 @@ const CSVUpload = ({ onLookupResults }) => {
         setLoading(true);
 
         for (let row of limitedRows) {
-          let address = row["Address"]?.trim();
+          const street = row['Address']?.trim();
+          const city = row['City']?.trim();
+          const state = row['State']?.trim();
+          const zip = row['Zip']?.trim();
 
-          if (!address) {
-            const values = Object.values(row).filter(Boolean);
-            address = values.join(', ').trim();
+          const fullAddress = [street, city, state, zip].filter(Boolean).join(', ');
+
+          if (!fullAddress) {
+            errorList.push(`Incomplete address: "${row['Address'] || 'Missing'}"`);
+            continue;
           }
-
-          
-          if (!address) {
-          errorList.push(`Missing address field`);
-          continue;
-          }
-         
-
 
           try {
             const res = await fetch(`${process.env.REACT_APP_API_URL}/lookup`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ address })
+              body: JSON.stringify({ address: fullAddress })
             });
 
             const data = await res.json();
 
             newResults.push({
-              input: address,
-              result: data,
-              landglideOwner: row["Owner"] || "N/A"
+              input: fullAddress,
+              landglideOwner: row['Owner'] || 'N/A',
+              result: data
             });
           } catch (err) {
-            errorList.push(`Error for address "${address}": ${err.message}`);
+            errorList.push(`Error for address "${fullAddress}": ${err.message}`);
           }
         }
 

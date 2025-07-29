@@ -15,7 +15,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// ✅ /lookup route (BatchData)
 app.post('/lookup', async (req, res) => {
   const { address } = req.body;
   console.log("raw adress from request:", address);
