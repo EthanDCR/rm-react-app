@@ -68,60 +68,64 @@ const CSVUpload = ({ onLookupResults }) => {
   const [errors, setErrors] = useState([]);
   const [results, setResults] = useState([]);
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
 
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (result) => {
-        const rows = result.data;
-        const limitedRows = rows.slice(0, 10);
-        const newResults = [];
-        const errorList = [];
 
-        setLoading(true);
+Papa.parse(file, {
+  header: true,
+  skipEmptyLines: true,
+  transformHeader: (header) => header.trim().toLowerCase(), // sanitize headers
+  complete: async (result) => {
+    const rows = result.data;
+    const limitedRows = rows.slice(0, 75);
+    const newResults = [];
+    const errorList = [];
 
-        for (let row of limitedRows) {
-          const street = row['Address']?.trim();
-          const city = row['City']?.trim();       
-          const state = normalizeState(row['State']); 
-          const zip = row['Zip']?.trim();
+    setLoading(true);
 
-          const fullAddress = [street, city, state, zip].filter(Boolean).join(', ');
+    for (let row of limitedRows) {
+      const street = row['address']?.trim() || '';
+      const city = row['city']?.trim() || '';
+      const state = normalizeState(row['state'] || '');
+      const zip = row['zip']?.trim() || '';
+      const name = row['name']?.trim() || 'N/A';
 
-          if (!fullAddress) {
-            errorList.push(`Incomplete address: "${row['Address'] || 'Missing'}"`);
-            continue;
-          }
+      const fullAddress = [street, city, state, zip].filter(Boolean).join(', ');
 
-          try {
-            const res = await fetch(`${process.env.REACT_APP_API_URL}/lookup`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ address: fullAddress })
-            });
-
-            const data = await res.json();
-
-            newResults.push({
-              input: fullAddress,
-              landglideOwner: row['Owner'] || 'N/A',
-              result: data
-            });
-          } catch (err) {
-            errorList.push(`Error for address "${fullAddress}": ${err.message}`);
-          }
-        }
-
-        setLoading(false);
-        setResults(newResults);
-        setErrors(errorList);
-        onLookupResults(newResults);
+      if (!fullAddress) {
+        errorList.push(`Incomplete address: "${street || 'Missing'}"`);
+        continue;
       }
-    });
-  };
+
+      try {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/lookup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ address: fullAddress })
+        });
+
+        const data = await res.json();
+
+        newResults.push({
+          input: fullAddress,
+          owner: data.responses?.[0]?.owner?.firstName
+            ? `${data.responses[0].owner.firstName} ${data.responses[0].owner.lastName}`
+            : name,
+          phoneNumbers: data.responses?.[0]?.phoneNumbers || [],
+          raw: data
+        });
+      } catch (err) {
+        errorList.push(`Error for address "${fullAddress}": ${err.message}`);
+      }
+    }
+
+    setLoading(false);
+    setResults(newResults);
+    setErrors(errorList);
+    onLookupResults(newResults);
+  }
+});
+
+
 
   return (
     <div className="csv-upload-container">
